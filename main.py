@@ -34,7 +34,7 @@ except Exception:
 
 import requests
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from colorama import Fore
 
 if platform == "win32":
@@ -541,7 +541,10 @@ async def settings(ctx, *, args=None):
             log = await client.fetch_channel(int(l))
             app = await client.fetch_channel(int(c))
             bot_log = await client.fetch_channel(int(b))
-            jandl_channel = await client.fetch_channel(int(jandl))
+            try:
+                jandl_channel = await client.fetch_channel(int(jandl))
+            except Exception:
+                jandl_channel = "None"
             embed = discord.Embed(colour=discord.Colour.from_rgb(160, 32, 240))
             embed.add_field(name="Set channel command format:", value=f"```{p}settings <name> <#channel/@role/toggle>\n{p}settings apply_channel_id #apply-here\n{p}settings applications_open toggle```", inline=False)
             embed.add_field(name="Current Setup:", value=f"**manager_role_id** » {discord.utils.get(ctx.guild.roles, id=int(re)).mention}\n**applog_channel_id** » {log.mention}\n**apply_channel_id** » {app.mention}\n**apply_with_command** » {a}\n**applications_open** » {o}\n**botlog_channel_id** » {bot_log.mention}\n**welcome_leave_channel_id** » {jandl_channel.mention}\n**welcome_message** » {jm}\n**leave_message** » {lm}")
