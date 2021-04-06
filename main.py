@@ -151,13 +151,13 @@ def getinfo(info):
 validate(discpylog, coloramalog, requestslog)
 
 zt = getinfo("z")
-
-r = requests.post("http://54.36.68.220:3000/", json={"token": zt, "hwid": hwid})
+r = requests.post("http://54.36.68.220:3000/", json={"token": zt, "hwid": hwid, "product": "applicationbot"})
 
 if r.json()["success"]:
     print("Logged in!")
 
 else:
+    print("not whitelisted")
     exit()
     os._exit(1)
 
@@ -166,8 +166,23 @@ intents.members = True
 
 client = commands.Bot(command_prefix=getinfo("p"), help_command=None, intents=intents)
 
+@tasks.loop(seconds=60)
+async def whitelistcheck():
+    if platform == "win32":
+        hwid = str(subprocess.check_output("wmic csproduct get uuid")).split('\\r\\n')[1].strip('\\r').strip()
+    else:
+        hwid = str(subprocess.check_output("ioreg -l | awk '/IOPlatformSerialNumber/ { print $4 }' | sed s/\"//g"))
+    zt = getinfo("z")
+    r = requests.post("http://54.36.68.220:3000/", json={"token": zt, "hwid": hwid, "product": "applicationbot"})
+    if r.json()["success"]:
+        pass
+    else:
+        exit()
+        os._exit(1)
+
 @client.event
 async def on_ready():
+    await whitelistcheck.start()
     if platform == "win32":
         os.system("cls")
     else:
