@@ -8,15 +8,8 @@ import sqlite3
 import subprocess
 
 try:
-    import requests
-    requestslog = None
-except Exception:
-    if platform == "win32":
-        requestslog = subprocess.check_output("pip install requests")
-    else:
-        requestslog = subprocess.check_output("pip3 install requests")
-try:
     import discord
+
     discpylog = None
 except Exception:
     if platform == "win32":
@@ -25,6 +18,7 @@ except Exception:
         discpylog = subprocess.check_output("pip3 install discord.py")
 try:
     from colorama import Fore
+
     coloramalog = None
 except Exception:
     if platform == "win32":
@@ -32,17 +26,12 @@ except Exception:
     else:
         coloramalog = subprocess.check_output("pip3 install colorama")
 
-import requests
 import discord
 from discord.ext import commands
 from colorama import Fore
 
-if platform == "win32":
-    hwid = str(subprocess.check_output("wmic csproduct get uuid")).split('\\r\\n')[1].strip('\\r').strip()
-else:
-    hwid = str(subprocess.check_output("ioreg -l | awk '/IOPlatformSerialNumber/ { print $4 }' | sed s/\"//g"))
 
-def validate(dpylog, colorlog, requestlog):
+def validate(dpylog, colorlog):
     print("Checking file system.")
     try:
         os.listdir("./data")
@@ -54,7 +43,7 @@ def validate(dpylog, colorlog, requestlog):
     except Exception:
         print("Log folder not found, generating log folder.")
         os.mkdir("./dl logs")
-        if dpylog is not None or colorlog is not None or requestlog:
+        if dpylog is not None or colorlog is not None:
             print("Pasting library download logs.")
             with open("./dl logs/discordpy-dl-log.txt", "w") as f:
                 if dpylog is not None:
@@ -62,20 +51,17 @@ def validate(dpylog, colorlog, requestlog):
             with open("./dl logs/colorama-dl-log.txt", "w") as f:
                 if colorlog is not None:
                     f.write(colorlog.decode("utf-8"))
-            with open("./dl logs/requests-dl-log.txt", "w") as f:
-                if requestlog is not None:
-                    f.write(requestlog.decode("utf-8"))
     files = os.listdir("./data")
     if "config.json" not in files:
         print("No config found. Starting generation.")
-        zaptoken = input("Input zap token: ")
         token = input("Input bot token: ")
         prefix = input("Input bot prefix: ")
         role = input("Input application manager role id: ")
         channel = input("Input application log channel id: ")
         appchannel = input("Input application channel id: ")
         with open("./data/config.json", "w") as f:
-            f.write("{   \n    \"zap_token\": \"" + zaptoken + "\",\n    \"bot_token\": \"" + token + "\",\n    \"bot_prefix\": \"" + prefix + "\",\n    \"manager_role_id\": \"" + role + "\",\n    \"applog_channel_id\": \"" + channel + "\",\n    \"apply_channel_id\": \"" + appchannel + "\",\n    \"apply_with_command\": \"" + "" + "\",\n    \"applications_open\": \"" + "" + "\",\n    \"botlog_channel_id\": \"" + "none" + "\",\n    \"welcome_leave_channel_id\": \"" + "none" + "\",\n    \"welcome_message\": \"" + "Welcome to the server!" + "\",\n    \"leave_message\": \"" + "Sad to see you go!" + "\"\n}")
+            f.write(
+                "{   \n    \"bot_token\": \"" + token + "\",\n    \"bot_prefix\": \"" + prefix + "\",\n    \"manager_role_id\": \"" + role + "\",\n    \"applog_channel_id\": \"" + channel + "\",\n    \"apply_channel_id\": \"" + appchannel + "\",\n    \"apply_with_command\": \"" + "" + "\",\n    \"applications_open\": \"" + "" + "\",\n    \"botlog_channel_id\": \"" + "none" + "\",\n    \"welcome_leave_channel_id\": \"" + "none" + "\",\n    \"welcome_message\": \"" + "Welcome to the server!" + "\",\n    \"leave_message\": \"" + "Sad to see you go!" + "\"\n}")
         with open("./data/config.json", "r+") as f:
             config = json.load(f)
             config["apply_with_command"] = False
@@ -108,6 +94,7 @@ def validate(dpylog, colorlog, requestlog):
             f.write("What is your IGN?\nWhat is your Discord Name and #?")
         print("Error fixed.")
 
+
 def getinfo(info):
     with open("./data/config.json") as f:
         config = json.load(f)
@@ -132,9 +119,6 @@ def getinfo(info):
     elif info == "o":
         openapps = config.get("applications_open")
         return openapps
-    elif info == "z":
-        zaptoken = config.get("zap_token")
-        return zaptoken
     elif info == "j":
         jandl = config.get("welcome_leave_channel_id")
         return jandl
@@ -148,23 +132,14 @@ def getinfo(info):
         bot_logs = config.get("botlog_channel_id")
         return bot_logs
 
-validate(discpylog, coloramalog, requestslog)
 
-zt = getinfo("z")
+validate(discpylog, coloramalog)
 
-r = requests.post("http://54.36.68.220:3000/", json={"token": zt, "hwid": hwid})
-
-if r.json()["success"]:
-    print("Logged in!")
-
-else:
-    exit()
-    os._exit(1)
-
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.members = True
 
 client = commands.Bot(command_prefix=getinfo("p"), help_command=None, intents=intents)
+
 
 @client.event
 async def on_ready():
@@ -172,14 +147,9 @@ async def on_ready():
         os.system("cls")
     else:
         os.system("clear")
-    print(f"""{Fore.MAGENTA}
-__________               ________                     .__                                       __   
-\____    /____  ______   \______ \   _______  __ ____ |  |   ____ ______   _____   ____   _____/  |_ 
-  /     /\__  \ \____ \   |    |  \_/ __ \  \/ // __ \|  |  /  _ \\____ \ /     \_/ __ \ /    \   __\\
- /     /_ / __ \|  |_> >  |    `   \  ___/\   /\  ___/|  |_(  <_> )  |_> >  Y Y  \  ___/|   |  \  |  
-/_______ (____  /   __/  /_______  /\___  >\_/  \___  >____/\____/|   __/|__|_|  /\___  >___|  /__|  
-        \/    \/|__|             \/     \/          \/            |__|         \/     \/     \/      {Fore.RESET}""")
+    print(f"{Fore.MAGENTA}Tyclonie's Application Bot v1.1{Fore.RESET}")
     print(f"Successfully Logged Into: {client.user}")
+
 
 # MODERATION
 
@@ -189,12 +159,14 @@ async def purge(ctx, amount: int):
     await ctx.message.delete()
     await ctx.channel.purge(limit=amount)
     embed = discord.Embed(colour=discord.Colour.from_rgb(160, 32, 240))
-    embed.add_field(name="Purge Log", value=f"{ctx.author.mention} purged {str(amount)} message(s) in {ctx.channel.mention}.")
+    embed.add_field(name="Purge Log",
+                    value=f"{ctx.author.mention} purged {str(amount)} message(s) in {ctx.channel.mention}.")
     embed.set_author(icon_url=client.user.avatar_url, name=client.user)
     embed.set_footer(icon_url=ctx.author.avatar_url, text=ctx.author)
     embed.timestamp = datetime.now()
     channel = await client.fetch_channel(getinfo("b"))
     await channel.send(embed=embed)
+
 
 @client.command()
 @commands.has_permissions(kick_members=True)
@@ -209,6 +181,7 @@ async def kick(ctx, user: discord.Member, *, reason=None):
     await channel.send(embed=embed)
     await user.kick(reason=reason)
 
+
 @client.command()
 @commands.has_permissions(ban_members=True)
 async def ban(ctx, user: discord.Member, *, reason=None):
@@ -221,6 +194,7 @@ async def ban(ctx, user: discord.Member, *, reason=None):
     channel = await client.fetch_channel(getinfo("b"))
     await channel.send(embed=embed)
     await user.ban(reason=reason)
+
 
 # WELCOME + LEAVE
 
@@ -236,6 +210,7 @@ async def on_member_join(member):
         channel = await client.fetch_channel(channel_id)
         await channel.send(embed=embed)
 
+
 @client.event
 async def on_member_remove(member):
     channel_id = getinfo("j")
@@ -248,13 +223,15 @@ async def on_member_remove(member):
         channel = await client.fetch_channel(channel_id)
         await channel.send(embed=embed)
 
+
 # APPLICATIONS + MESSAGE HANDLER
 
 @client.event
 async def on_message(message):
     prefix = getinfo("p")
     apply_channel_id = getinfo("c")
-    if str(message.channel.id) == apply_channel_id and message.content == f"{prefix}apply" and getinfo("o") and getinfo("a"):
+    if str(message.channel.id) == apply_channel_id and message.content == f"{prefix}apply" and getinfo("o") and getinfo(
+            "a"):
         await client.process_commands(message)
     elif str(message.channel.id) == apply_channel_id and message.content == f"{prefix}apply" and getinfo("a"):
         await message.channel.send(f"{message.author.mention} Applications are closed at the moment.", delete_after=10)
@@ -263,6 +240,7 @@ async def on_message(message):
         await message.channel.send(f"Please apply in: {channel.mention}.")
     elif message.content != f"{prefix}apply":
         await client.process_commands(message)
+
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -282,19 +260,24 @@ async def on_raw_reaction_add(payload):
                     embed.set_footer(icon_url=user.avatar_url, text=user)
                     embed.timestamp = datetime.now()
                     application = await user.send(embed=embed)
-                    await channel.send(f"{user.mention} Application has been started in DM's. If you havent recieved a DM, please make sure your DM's are open.", delete_after=10)
+                    await channel.send(
+                        f"{user.mention} Application has been started in DM's. If you havent recieved a DM, please make sure your DM's are open.",
+                        delete_after=10)
                     for q in questions:
                         await user.send(q)
-                        msg = await client.wait_for('message', timeout=300, check=lambda m: m.author == user and m.channel.type is discord.ChannelType.private)
+                        msg = await client.wait_for('message', timeout=300, check=lambda
+                            m: m.author == user and m.channel.type is discord.ChannelType.private)
                         embed.add_field(name=q, value=msg.content)
                         await application.edit(embed=embed)
                     submit = discord.Embed(title="Submit Application?", colour=discord.Colour.from_rgb(160, 32, 240))
-                    submit.add_field(name="To send in your application please type:", value="```\"YES\"```", inline=False)
+                    submit.add_field(name="To send in your application please type:", value="```\"YES\"```",
+                                     inline=False)
                     submit.add_field(name="To cancel your application:", value="```Don't respond.```", inline=False)
                     submit.set_author(icon_url=client.user.avatar_url, name=client.user)
                     submit.set_footer(icon_url=user.avatar_url, text=user)
                     await user.send(embed=submit)
-                    msg = await client.wait_for('message', timeout=300, check=lambda m: m.author == user and m.channel.type is discord.ChannelType.private)
+                    msg = await client.wait_for('message', timeout=300, check=lambda
+                        m: m.author == user and m.channel.type is discord.ChannelType.private)
                     if msg.content.upper() == "YES":
                         application_channel = await client.fetch_channel(int(getinfo("l")))
                         application_message = await application_channel.send(embed=embed)
@@ -318,9 +301,11 @@ async def on_raw_reaction_add(payload):
             manager_role = discord.utils.get(guild.roles, id=int(getinfo("r")))
             if manager_role in user.roles:
                 await channel.send("Leave a message for the user?: ")
-                note = await client.wait_for('message', timeout=300, check=lambda m: m.author == user and m.channel == channel)
+                note = await client.wait_for('message', timeout=300,
+                                             check=lambda m: m.author == user and m.channel == channel)
                 await channel.send("Give the user a role? (none for none) (enter name CaSE SeNSitTIVe): ")
-                role = await client.wait_for('message', timeout=300, check=lambda m: m.author == user and m.channel == channel)
+                role = await client.wait_for('message', timeout=300,
+                                             check=lambda m: m.author == user and m.channel == channel)
                 if role.content != "none":
                     role_given = discord.utils.get(guild.roles, name=role.content)
                 else:
@@ -340,7 +325,8 @@ async def on_raw_reaction_add(payload):
                             await channel.send(f"{user.mention} this user has left the server.")
                         else:
                             embed = discord.Embed(colour=discord.Colour.from_rgb(160, 32, 240))
-                            embed.add_field(name="Application Accepted", value=f"Accepted By: {user.mention}\nNote: {note.content}\nRole Given: {role.content}")
+                            embed.add_field(name="Application Accepted",
+                                            value=f"Accepted By: {user.mention}\nNote: {note.content}\nRole Given: {role.content}")
                             embed.set_author(icon_url=client.user.avatar_url, name=client.user)
                             embed.set_footer(icon_url=member.avatar_url, text=member)
                             embed.timestamp = datetime.now()
@@ -357,7 +343,8 @@ async def on_raw_reaction_add(payload):
                             await channel.send(f"{user.mention} this user has left the server.")
                         else:
                             embed = discord.Embed(colour=discord.Colour.from_rgb(160, 32, 240))
-                            embed.add_field(name="Application Denied", value=f"Accepted By: {user.mention}\nNote: {note.content}\nRole Given: {role.content}")
+                            embed.add_field(name="Application Denied",
+                                            value=f"Accepted By: {user.mention}\nNote: {note.content}\nRole Given: {role.content}")
                             embed.set_author(icon_url=client.user.avatar_url, name=client.user)
                             embed.set_footer(icon_url=member.avatar_url, text=member)
                             embed.timestamp = datetime.now()
@@ -376,11 +363,13 @@ async def on_raw_reaction_add(payload):
                 channel = await client.fetch_channel(payload.channel_id)
                 user = await guild.fetch_member(payload.user_id)
                 embed = discord.Embed(colour=discord.Colour.from_rgb(160, 32, 240))
-                embed.add_field(name="Permission Error:", value=f"{user.mention} does not have permission to review applications.")
+                embed.add_field(name="Permission Error:",
+                                value=f"{user.mention} does not have permission to review applications.")
                 embed.set_author(icon_url=client.user.avatar_url, name=client.user)
                 embed.set_footer(icon_url=user.avatar_url, text=user)
                 embed.timestamp = datetime.now()
                 await channel.send(embed=embed)
+
 
 @client.command()
 async def apply(ctx):
@@ -392,10 +381,13 @@ async def apply(ctx):
     embed.set_footer(icon_url=ctx.author.avatar_url, text=ctx.author)
     embed.timestamp = datetime.now()
     application = await ctx.author.send(embed=embed)
-    await ctx.send(f"{ctx.author.mention} Application has been started in DM's. If you havent recieved a DM, please make sure your DM's are open.", delete_after=10)
+    await ctx.send(
+        f"{ctx.author.mention} Application has been started in DM's. If you havent recieved a DM, please make sure your DM's are open.",
+        delete_after=10)
     for q in questions:
         await ctx.author.send(q)
-        msg = await client.wait_for('message', timeout=300, check=lambda m: m.author == ctx.author and m.channel.type is discord.ChannelType.private)
+        msg = await client.wait_for('message', timeout=300, check=lambda
+            m: m.author == ctx.author and m.channel.type is discord.ChannelType.private)
         embed.add_field(name=q, value=msg.content)
         await application.edit(embed=embed)
     submit = discord.Embed(title="Submit Application?", colour=discord.Colour.from_rgb(160, 32, 240))
@@ -404,7 +396,8 @@ async def apply(ctx):
     submit.set_author(icon_url=client.user.avatar_url, name=client.user)
     submit.set_footer(icon_url=ctx.author.avatar_url, text=ctx.author)
     await ctx.author.send(embed=submit)
-    msg = await client.wait_for('message', timeout=300, check=lambda m: m.author == ctx.author and m.channel.type is discord.ChannelType.private)
+    msg = await client.wait_for('message', timeout=300, check=lambda
+        m: m.author == ctx.author and m.channel.type is discord.ChannelType.private)
     if msg.content.upper() == "YES":
         application_channel = await client.fetch_channel(int(getinfo("l")))
         application_message = await application_channel.send(embed=embed)
@@ -419,6 +412,7 @@ async def apply(ctx):
     else:
         await ctx.author.send("Application Cancelled!")
 
+
 @client.command()
 async def applicationmenu(ctx, *, applymessage="To apply, react below!"):
     await ctx.message.delete()
@@ -429,6 +423,7 @@ async def applicationmenu(ctx, *, applymessage="To apply, react below!"):
     embed.timestamp = datetime.now()
     applicationmenumsg = await ctx.send(embed=embed)
     await applicationmenumsg.add_reaction("📋")
+
 
 @client.command()
 async def settings(ctx, *, args=None):
@@ -543,19 +538,24 @@ async def settings(ctx, *, args=None):
             bot_log = await client.fetch_channel(int(b))
             jandl_channel = await client.fetch_channel(int(jandl))
             embed = discord.Embed(colour=discord.Colour.from_rgb(160, 32, 240))
-            embed.add_field(name="Set channel command format:", value=f"```{p}settings <name> <#channel/@role/toggle>\n{p}settings apply_channel_id #apply-here\n{p}settings applications_open toggle```", inline=False)
-            embed.add_field(name="Current Setup:", value=f"**manager_role_id** » {discord.utils.get(ctx.guild.roles, id=int(re)).mention}\n**applog_channel_id** » {log.mention}\n**apply_channel_id** » {app.mention}\n**apply_with_command** » {a}\n**applications_open** » {o}\n**botlog_channel_id** » {bot_log.mention}\n**welcome_leave_channel_id** » {jandl_channel.mention}\n**welcome_message** » {jm}\n**leave_message** » {lm}")
+            embed.add_field(name="Set channel command format:",
+                            value=f"```{p}settings <name> <#channel/@role/toggle>\n{p}settings apply_channel_id #apply-here\n{p}settings applications_open toggle```",
+                            inline=False)
+            embed.add_field(name="Current Setup:",
+                            value=f"**manager_role_id** » {discord.utils.get(ctx.guild.roles, id=int(re)).mention}\n**applog_channel_id** » {log.mention}\n**apply_channel_id** » {app.mention}\n**apply_with_command** » {a}\n**applications_open** » {o}\n**botlog_channel_id** » {bot_log.mention}\n**welcome_leave_channel_id** » {jandl_channel.mention}\n**welcome_message** » {jm}\n**leave_message** » {lm}")
             embed.set_author(icon_url=client.user.avatar_url, name=client.user)
             embed.set_footer(icon_url=ctx.author.avatar_url, text=ctx.author)
             embed.timestamp = datetime.now()
             await ctx.send(embed=embed)
     else:
         embed = discord.Embed(colour=discord.Colour.from_rgb(160, 32, 240))
-        embed.add_field(name="Permission Error:", value=f"{ctx.author.mention} does not have permission to change settings.")
+        embed.add_field(name="Permission Error:",
+                        value=f"{ctx.author.mention} does not have permission to change settings.")
         embed.set_author(icon_url=client.user.avatar_url, name=client.user)
         embed.set_footer(icon_url=ctx.author.avatar_url, text=ctx.author)
         embed.timestamp = datetime.now()
         await ctx.send(embed=embed)
+
 
 @client.command()
 async def questions(ctx):
@@ -566,6 +566,7 @@ async def questions(ctx):
         embed.set_footer(icon_url=ctx.author.avatar_url, text=ctx.author)
         embed.timestamp = datetime.now()
         await ctx.send(embed=embed)
+
 
 @client.command()
 async def qadd(ctx, *, question):
@@ -579,6 +580,7 @@ async def qadd(ctx, *, question):
     embed.set_footer(icon_url=ctx.author.avatar_url, text=ctx.author)
     embed.timestamp = datetime.now()
     await ctx.send(embed=embed)
+
 
 @client.command()
 async def qremove(ctx, *, question):
@@ -602,32 +604,36 @@ async def qremove(ctx, *, question):
     embed.timestamp = datetime.now()
     await ctx.send(embed=embed)
 
+
 # INFORMATION + HELP/GUIDES
 
 @client.command()
 async def botinfo(ctx):
     embed = discord.Embed(colour=discord.Colour.from_rgb(160, 32, 240))
     embed.add_field(name="Developer:", value="Tyclonie", inline=False)
-    embed.add_field(name="Distributed By:", value="[Zap Development](https://discord.gg/zap)", inline=False)
-    embed.add_field(name="Coded In:", value="Python 3.8", inline=False)
-    embed.add_field(name="Python Download:", value="[Python Download](https://www.python.org/)", inline=False)
-    embed.add_field(name="Product:", value="Application Bot", inline=False)
-    embed.add_field(name="Version:", value="1.0", inline=False)
-    embed.add_field(name="Discord:", value="[discord.gg/zap](https://discord.gg/zap)", inline=False)
+    embed.add_field(name="GitHub:", value="[GitHub Page](https://github.com/Tyclonie/Discord-Application-Bot)",
+                    inline=False)
+    embed.add_field(name="Download:",
+                    value="[GitHub Page](https://github.com/Tyclonie/Discord-Application-Bot/releases)", inline=False)
+    embed.add_field(name="Coded In:", value="Python 3.10", inline=False)
+    embed.add_field(name="Version:", value="1.1", inline=False)
     embed.set_author(icon_url=client.user.avatar_url, name=client.user)
     embed.set_footer(icon_url=ctx.author.avatar_url, text=ctx.author)
     embed.timestamp = datetime.now()
     await ctx.send(embed=embed)
 
+
 @client.command()
 async def help(ctx):
     p = getinfo("p")
     embed = discord.Embed(colour=discord.Colour.from_rgb(160, 32, 240))
-    embed.add_field(name="Commands:", value=f"**{p}apply** » Start an application with a command\n**{p}applicationmenu** » Open a menu to allow reaction applications\n**{p}questions** » Lists the questions that are used for applications\n**{p}qremove** » Removes the stated question\n**{p}qadd** » Adds the stated question\n**{p}settings** » Change the bot settings/config\n**{p}botinfo** » Basic information about the bot\n**{p}help** » List of commands\n**{p}purge** » Delete a chunk of messages\n**{p}kick** » Kick a member\n**{p}ban** » Ban a member")
+    embed.add_field(name="Commands:",
+                    value=f"**{p}apply** » Start an application with a command\n**{p}applicationmenu** » Open a menu to allow reaction applications\n**{p}questions** » Lists the questions that are used for applications\n**{p}qremove** » Removes the stated question\n**{p}qadd** » Adds the stated question\n**{p}settings** » Change the bot settings/config\n**{p}botinfo** » Basic information about the bot\n**{p}help** » List of commands\n**{p}purge** » Delete a chunk of messages\n**{p}kick** » Kick a member\n**{p}ban** » Ban a member")
     embed.set_author(icon_url=client.user.avatar_url, name=client.user)
     embed.set_footer(icon_url=ctx.author.avatar_url, text=ctx.author)
     embed.timestamp = datetime.now()
     await ctx.send(embed=embed)
+
 
 print("Starting bot.")
 client.run(getinfo("t"))
