@@ -1,0 +1,7 @@
+Please do not modify the code in any way which modifies any lines of code that credits me or links to the download page for the bot.
+
+The bot is open sourced and anyone can change / modify the code. But the top line remains, I allow anyone to modify the code upon downloading and using the bot
+I also allow forking and re-releasing but lines in which credit me (Tyclonie) cannot be modified. If you would wish to credit yourself, you may add another line
+saying something like "Forked By: {your_name}".
+
+Thanks for using the bot.
