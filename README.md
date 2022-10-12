@@ -1,5 +1,5 @@
 # Discord Application Bot
-Developed By Tyclonie\n
+Developed By Tyclonie<br>
 Setup Tutorial: https://www.youtube.com/watch?v=GDiUAc5tCOg
 
 ## Background Information
