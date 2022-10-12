@@ -3,7 +3,7 @@ Developed By Tyclonie<br>
 Setup Tutorial: https://www.youtube.com/watch?v=GDiUAc5tCOg
 
 ## Background Information
-The bot was built a year before the public release and is also no longer updated by me. Before a couple of changes I made before publicly releasing the source code, the bot was designed to be distributed by Zap Development, but they chose not to.
+The bot was built a year before the public release and is also no longer updated by me and is potentially outdated. Before a couple of changes I made before publicly releasing the source code, the bot was designed to be distributed by Zap Development, but they chose not to.
 
 ## Licensing
 Please abide by the license I have provided in license.txt while using the bot or modifying it.
