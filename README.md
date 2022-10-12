@@ -2,7 +2,7 @@
 The bot was built a year before the public release and is also no longer updated by me.
 Before a couple of changes I made before publicly releasing the source code, the bot was designed to be distributed by Zap Development, but they chose not to.
 
-##Licensing
+#Licensing
 Please abide by the license I have provided in license.txt while using the bot or modifying it.
 
 To run the bot all you require to download is Python, preferably 3.10 however the bot **should** work on newer/older versions of python.
